@@ -575,3 +575,177 @@ button.tab.active {
 [hidden] {
   display: none !important;
 }
+"use strict";
+
+const authView = document.getElementById("auth-view");
+const homeView = document.getElementById("home-view");
+const form = document.getElementById("auth-form");
+const usernameInput = document.getElementById("username");
+const passwordInput = document.getElementById("password");
+const showPasswordButton = document.getElementById("show-password");
+const message = document.getElementById("message");
+const submitButton = document.getElementById("submit-button");
+const passwordHint = document.getElementById("password-hint");
+const loginTab = document.getElementById("login-tab");
+const registerTab = document.getElementById("register-tab");
+const logoutButton = document.getElementById("logout-button");
+const welcome = document.getElementById("welcome");
+
+let mode = "login";
+let csrfToken = "";
+
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    credentials: "same-origin",
+    ...options,
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const data = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(data.error || "Request complete nahi hui.");
+  }
+
+  return data;
+}
+
+async function refreshCsrfToken() {
+  const data = await api("/api/csrf");
+  csrfToken = data.csrfToken;
+  return data;
+}
+
+function setMode(nextMode) {
+  mode = nextMode;
+  const isRegister = mode === "register";
+
+  loginTab.classList.toggle("active", !isRegister);
+  registerTab.classList.toggle("active", isRegister);
+
+  passwordHint.hidden = !isRegister;
+  passwordInput.autocomplete = isRegister
+    ? "new-password"
+    : "current-password";
+
+  passwordInput.minLength = isRegister ? 12 : 1;
+  submitButton.textContent = isRegister
+    ? "Account banayein"
+    : "Login karein";
+
+  message.textContent = "";
+  passwordInput.value = "";
+  passwordInput.type = "password";
+  showPasswordButton.textContent = "Password dikhayein";
+}
+
+function showUser(username) {
+  authView.hidden = true;
+  homeView.hidden = false;
+  welcome.textContent = `Namaste, ${username}!`;
+  welcome.focus();
+}
+
+function showAuth() {
+  homeView.hidden = true;
+  authView.hidden = false;
+  form.reset();
+  setMode("login");
+  usernameInput.focus();
+}
+
+loginTab.addEventListener("click", () => {
+  setMode("login");
+});
+
+registerTab.addEventListener("click", () => {
+  setMode("register");
+});
+
+showPasswordButton.addEventListener("click", () => {
+  const passwordVisible = passwordInput.type === "text";
+  passwordInput.type = passwordVisible ? "password" : "text";
+
+  showPasswordButton.textContent = passwordVisible
+    ? "Password dikhayein"
+    : "Password chupayein";
+});
+
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  message.textContent = "";
+
+  submitButton.disabled = true;
+
+  try {
+    if (!csrfToken) {
+      await refreshCsrfToken();
+    }
+
+    const endpoint =
+      mode === "register"
+        ? "/api/register"
+        : "/api/login";
+
+    const data = await api(endpoint, {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify({
+        username: usernameInput.value.trim(),
+        password: passwordInput.value
+      })
+    });
+
+    csrfToken = data.csrfToken;
+    form.reset();
+    showUser(data.user.username);
+  } catch (error) {
+    message.textContent =
+      error.message || "Kuch galat ho gaya.";
+  } finally {
+    submitButton.disabled = false;
+  }
+});
+
+logoutButton.addEventListener("click", async () => {
+  logoutButton.disabled = true;
+
+  try {
+    await api("/api/logout", {
+      method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken
+      },
+      body: JSON.stringify({})
+    });
+
+    csrfToken = "";
+    await refreshCsrfToken();
+    showAuth();
+  } catch (error) {
+    message.textContent =
+      error.message || "Logout nahi ho saka.";
+  } finally {
+    logoutButton.disabled = false;
+  }
+});
+
+async function start() {
+  try {
+    await refreshCsrfToken();
+    const data = await api("/api/me");
+
+    if (data.user) {
+      showUser(data.user.username);
+    }
+  } catch (error) {
+    console.warn("Initial session check failed:", error);
+  }
+}
+
+start();
