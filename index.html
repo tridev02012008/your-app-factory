@@ -360,4 +360,96 @@ app.use(express.static(publicDirectory));
 app.listen(PORT, () => {
   console.log(`Server: http://localhost:${PORT}`);
 });
-      
+<!doctype html>
+<html lang="hi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Account Login</title>
+  <link rel="stylesheet" href="/app.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <section id="auth-view">
+      <h1>Account</h1>
+      <p class="muted">Login karein ya naya account banayein.</p>
+
+      <div class="tabs" aria-label="Account mode">
+        <button
+          id="login-tab"
+          class="tab active"
+          type="button"
+        >
+          Login
+        </button>
+
+        <button
+          id="register-tab"
+          class="tab"
+          type="button"
+        >
+          Signup
+        </button>
+      </div>
+
+      <form id="auth-form">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          name="username"
+          type="text"
+          required
+          minlength="3"
+          maxlength="32"
+          pattern="[A-Za-z0-9_]+"
+          autocomplete="username"
+          aria-describedby="username-help"
+        >
+
+        <small id="username-help" class="muted">
+          3-32 letters, numbers ya underscore
+        </small>
+
+        <label for="password">Password</label>
+        <input
+          id="password"
+          name="password"
+          type="password"
+          required
+          minlength="12"
+          maxlength="200"
+          autocomplete="current-password"
+        >
+
+        <button
+          id="show-password"
+          type="button"
+          class="secondary"
+        >
+          Password dikhayein
+        </button>
+
+        <p id="password-hint" class="muted" hidden>
+          Password kam se kam 12 characters ka hona chahiye.
+        </p>
+
+        <p id="message" role="alert" aria-live="polite"></p>
+
+        <button id="submit-button" type="submit">
+          Login karein
+        </button>
+      </form>
+    </section>
+
+    <section id="home-view" hidden>
+      <h1 id="welcome"></h1>
+      <p>Aap securely login ho gaye hain.</p>
+
+      <button id="logout-button" type="button">
+        Logout karein
+      </button>
+    </section>
+  </main>
+</body>
+</html>      
