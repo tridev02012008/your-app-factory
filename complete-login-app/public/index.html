@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="hi-Latn">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Apna Account · Login aur signup</title>
+  <link rel="stylesheet" href="./app.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <main>
+    <section id="auth-view" aria-labelledby="account-title">
+      <h1 id="account-title">Apna Account</h1>
+      <p class="muted">Is app ke liye login karein ya naya account banayein.</p>
+
+      <form id="auth-form" method="post">
+        <fieldset id="auth-fields" disabled aria-label="Account">
+          <div class="tabs" role="group" aria-label="Account mode">
+            <button id="login-tab" class="tab active" type="button" aria-pressed="true">
+              Login
+            </button>
+            <button id="register-tab" class="tab" type="button" aria-pressed="false">
+              Signup
+            </button>
+          </div>
+
+          <label for="username">Username</label>
+          <input id="username" name="username" type="text" required
+                 minlength="3" maxlength="32" pattern="[A-Za-z0-9_]+"
+                 autocomplete="username" autocapitalize="none" spellcheck="false"
+                 aria-describedby="username-help">
+          <small id="username-help" class="muted">3–32 letters, numbers ya underscore</small>
+
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" required
+                 minlength="1" maxlength="200" autocomplete="current-password">
+          <p id="password-hint" class="muted" hidden>12 se 200 characters ka password banayein.</p>
+
+          <div id="confirm-group" hidden>
+            <label for="confirm-password">Password dobara daalein</label>
+            <input id="confirm-password" type="password" maxlength="200"
+                   autocomplete="new-password" disabled>
+          </div>
+
+          <button id="show-password" type="button" class="secondary"
+                  aria-controls="password confirm-password">
+            Password dikhayein
+          </button>
+          <button id="submit-button" type="submit">Login karein</button>
+        </fieldset>
+      </form>
+    </section>
+
+    <section id="home-view" hidden aria-labelledby="welcome">
+      <h1 id="welcome" tabindex="-1"></h1>
+      <p>Aap apne account mein login ho gaye hain.</p>
+      <button id="logout-button" type="button">Logout karein</button>
+    </section>
+
+    <p id="message" role="status" aria-live="polite"></p>
+    <button id="retry-button" type="button" class="secondary" hidden>Dobara connect karein</button>
+    <noscript><p>Login aur signup ke liye browser mein JavaScript chalu karein.</p></noscript>
+  </main>
+</body>
+</html>
